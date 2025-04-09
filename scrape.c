@@ -10,29 +10,40 @@ User createBot(char name[], Skin bSkins[], List bLists[], double balance){
     return bot;
 }
 
-void buySkin(User *user, List listB){
-    printf("SKIN BOUGHT: ");
-    printList(listB);
-    user->skins[user->skinCount++] = listB.skin;
-    user->balance -= listB.price;
+void buySkinBot(User *bot, List listToBuy) {
+    if (bot->balance >= listToBuy.price) {
+        bot->skins[bot->skinCount++] = listToBuy.skin;
+        bot->balance -= listToBuy.price;
+        printf("BOT BOUGHT: %s for %.2f€. New balance: %.2f€\n",
+               listToBuy.skin.skinName, listToBuy.price, bot->balance);
+        listSkin(bot, listToBuy.skin);
+    } else {
+        printf("BOT CANNOT AFFORD: %s (%.2f€). Balance: %.2f€\n",
+               listToBuy.skin.skinName, listToBuy.price, bot->balance);
+    }
 }
 
-void listSkin(User *userB, Skin skinB){
+void listSkin(User *userB, Skin skinB) {
     if (userB->skinCount > 0) {
-        createList(*userB, skinB, skinB.marketPrice);
-        // Remover a skin do array
-        int indexToRemove = -1;
+        // Ensure createList expects a pointer if necessary.
+        List newList = createList(*userB, skinB, skinB.marketPrice + 5);
 
+        // Add the new listing to the user's list
+        userB->lists[userB->listCount++] = newList;
+
+        printf("SKIN LISTED: %s for %.2f€\n", skinB.skinName, newList.price);
+
+        // Remove the skin from the skins array
+        int indexToRemove = -1;
         for (int i = 0; i < userB->skinCount; i++) {
             if (strcmp(userB->skins[i].skinName, skinB.skinName) == 0) {
                 indexToRemove = i;
                 break;
             }
         }
-
         if (indexToRemove != -1) {
             for (int i = indexToRemove; i < userB->skinCount - 1; i++) {
-                userB->skins[i] = userB->skins[i + 1]; // Shift
+                userB->skins[i] = userB->skins[i + 1];
             }
             userB->skinCount--;
         }
@@ -41,8 +52,8 @@ void listSkin(User *userB, Skin skinB){
     }
 }
 
-void updateB(List listB, User user){
+void updateB(List listB, User *user){
     if(listB.price > listB.skin.marketPrice + TRESHOLD){
-        buySkin(&user, listB);
+        buySkinBot(user, listB);
     }
 }

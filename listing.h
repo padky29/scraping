@@ -31,4 +31,6 @@ void printLists(List listL[], int size);
 
 User createUser(char name[], Skin skins[], List lists[], double balance);
 
+void simulatePurchase(List *botListing, User *bot);
+
 #endif // LISTING_H
